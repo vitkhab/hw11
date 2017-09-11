@@ -2,8 +2,13 @@
     "variables": {
         "project_id": null,
         "source_image": null,
-        "machine_type": "f1-micro"
+        "machine_type": "f1-micro",
+        "disk_size": "10",
+        "disk_type": "pd-standard",
+        "network": "default",
+        "tags": "puma-server"
     },
+
     "builders": [
         {
             "type": "googlecompute",
@@ -14,10 +19,10 @@
             "ssh_username": "appuser",
             "machine_type": "{{user `machine_type`}}",
             "image_description": "Pre-baked Ubuntu 16.04 with MongoDB and Ruby",
-            "disk_size": "10",
-            "disk_type": "pd-standard",
-            "network": "default",
-            "tags": ["webserver"]
+            "disk_size": "{{user `disk_size`}}",
+            "disk_type": "{{user `disk_type`}}",
+            "network": "{{user `network`}}",
+            "tags": "{{user `tags`}}"
         }
     ],
     "provisioners": [
