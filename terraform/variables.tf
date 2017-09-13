@@ -11,8 +11,8 @@ variable public_key_path {
   description = "Path to the public key used for ssh access"
 }
 
-variable connection_public_key_path {
-  description = "Path to the public key used by provisioners to access resources by ssh(connection block)"
+variable private_key_path {
+  description = "Path to the private key used by provisioners to access resources by ssh(connection block)"
 }
 
 variable disk_image {
