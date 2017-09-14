@@ -1,5 +1,23 @@
 # Infrastructure Repository
 
+## Terraform
+
+### Use Terraform for building, changing and versioning infrastructure
+
+Configure different environments(stage or production) using reusable modules.
+
+Define user variables in terraform.tfvars file based on sample terraform.tfvars.example in environments folders.
+
+Use commands below to build and change your infrastructure:
+
+```
+terraform plan
+terraforn apply
+terraform destroy
+terraform fmt
+terraform show
+```
+
 ## Packer
 
 ### Use Packer to create pre-baked images.
