@@ -1,6 +1,6 @@
 resource "google_compute_instance" "db" {
   name         = "reddit-db"
-  machine_type = "g1-small"
+  machine_type = "${var.machine_type}"
   zone         = "europe-west1-b"
   tags         = ["reddit-db"]
 
@@ -26,7 +26,7 @@ resource "google_compute_firewall" "firewall_mongo" {
 
   allow {
     protocol = "tcp"
-    ports    = ["27017"]
+    ports    = "${var.firewall_ports}"
   }
 
   target_tags = ["reddit-db"]

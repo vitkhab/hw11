@@ -17,5 +17,5 @@ module "db" {
 
 module "vpc" {
   source                 = "../modules/vpc"
-  ssh_rule_source_ranges = "${var.ssh_rule_source_ranges}"
+  firewall_source_ranges = "${var.ssh_rule_source_ranges}"
 }
