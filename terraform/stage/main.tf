@@ -6,7 +6,6 @@ provider "google" {
 module "app" {
   source          = "../modules/app"
   public_key_path = "${var.public_key_path}"
-  private_key_path = "${var.private_key_path}"
   app_disk_image  = "${var.app_disk_image}"
 }
 
@@ -17,6 +16,6 @@ module "db" {
 }
 
 module "vpc" {
-  source        = "../modules/vpc"
-  source_ranges = ["0.0.0.0/0"]
+  source                 = "../modules/vpc"
+  ssh_rule_source_ranges = "${var.ssh_rule_source_ranges}"
 }
