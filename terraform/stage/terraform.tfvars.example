@@ -1,0 +1,4 @@
+project = "example-project"
+public_key_path = "~/.ssh/appuser.pub"
+app_disk_image = "reddit-app-1505347738"
+db_disk_image = "reddit-db-1505347788"
