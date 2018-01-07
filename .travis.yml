@@ -62,8 +62,8 @@ script:
 - 'sed -i -e "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml'
 - cat reddit_app.yml
 - ansible-playbook reddit_app.yml --limit db --tags db-tag
-- ansible-playbook reddit_app.yml --limit app --tags deploy-tag
 - ansible-playbook reddit_app.yml --limit app --tags app-tag
+- ansible-playbook reddit_app.yml --limit app --tags deploy-tag
 - cd ..
 
 - sleep 5 && curl -s -o /dev/null -I -w "%{http_code}" --retry 10 --retry-delay 10
