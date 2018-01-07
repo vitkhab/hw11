@@ -44,15 +44,21 @@ script:
 - terraform import -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" module.vpc.google_compute_firewall.firewall_ssh default-allow-ssh
 - terraform apply -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" -auto-approve
 - export DB_EXTERNAL_IP=`terraform output db_external_ip`
+- echo $DB_EXTERNAL_IP
 - export DB_LOCAL_IP=`terraform output db_internal_ip`
+- echo $DB_LOCAL_IP
 - export EXTERNAL_IP=`terraform output app_external_ip`
+- echo $EXTERNAL_IP
 - cd ../..
 
 - cd ansible
 - printf "[app]\nappserver ansible_ssh_host=$EXTERNAL_IP\n[db]\ndbserver ansible_ssh_host=$DB_EXTERNAL_IP\n" > hosts
+- cat hosts
 - sed -i -e "s#private_key_file = .*#private_key_file = ../travis/google_compute#" ansible.cfg
+- cat ansible.cfg
 - ansible all -m ping
 - 'sed -i -e "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml'
+- cat reddit_app.yml
 - ansible-playbook reddit_app.yml --limit db --tags db-tag
 - ansible-playbook reddit_app.yml --limit app --tags deploy-tag
 - ansible-playbook reddit_app.yml --limit app --tags app-tag
