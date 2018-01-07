@@ -64,7 +64,7 @@ after_script:
 - cd terraform/stage
 - gcloud compute images delete --project $PROJECT -q $APP_IMAGE
 - gcloud compute images delete --project $PROJECT -q $DB_IMAGE
-- terraform plan -destroy  -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub"
+- terraform destroy -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" -force
   -target module.app.google_compute_address.app_ip
   -target module.app.google_compute_firewall.firewall_puma
   -target module.app.google_compute_instance.app
