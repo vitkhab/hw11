@@ -57,6 +57,7 @@ script:
 - cat hosts
 - sed -i -e "s#private_key_file = .*#private_key_file = ${TRAVIS_BUILD_DIR}/travis/google_compute#" ansible.cfg
 - cat ansible.cfg
+- sleep 30
 - ansible all -m ping
 - 'sed -i -e "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml'
 - cat reddit_app.yml
