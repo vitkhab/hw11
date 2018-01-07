@@ -28,5 +28,12 @@
       "type": "ansible",
       "playbook_file": "../ansible/packer_reddit_db.yml"
     }
+  ],
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "db-output.json",
+      "strip_path": true
+    }
   ]
 }
