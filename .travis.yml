@@ -42,7 +42,7 @@ script:
 - cd terraform/stage
 - terraform init
 - terraform import -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" module.vpc.google_compute_firewall.firewall_ssh default-allow-ssh
-- terraform apply -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub"
+- terraform apply -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" -auto-approve
 - export DB_EXTERNAL_IP=`terraform output db_external_ip`
 - export DB_LOCAL_IP=`terraform output db_internal_ip`
 - export EXTERNAL_IP=`terraform output app_external_ip`
