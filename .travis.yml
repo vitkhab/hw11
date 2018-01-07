@@ -1,0 +1,72 @@
+sudo: false
+language: python
+branches:
+  only:
+    - "master"
+cache:
+  directories:
+  - "$HOME/google-cloud-sdk/"
+  - "$HOME/bin/"
+env:
+- PROJECT="docker-181710"
+  PATH=$PATH:${HOME}/google-cloud-sdk/bin:${HOME}/bin
+  CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  GOOGLE_APPLICATION_CREDENTIALS="${TRAVIS_BUILD_DIR}/travis/credentials.json"
+before_install:
+- openssl aes-256-cbc -K $encrypted_57a6764e1cee_key -iv $encrypted_57a6764e1cee_iv
+ -in travis/secrets.zip.enc -out secrets.zip -d
+- unzip secrets.zip -d travis/
+- if [ ! -d "${HOME}/google-cloud-sdk/bin" ];
+  then rm -rf $HOME/google-cloud-sdk;
+  curl https://sdk.cloud.google.com | bash > /dev/null; fi
+- gcloud version
+- gcloud auth activate-service-account --key-file travis/credentials.json
+install:
+- pip install -r ansible/requirements.txt
+- if [ ! -e ${HOME}/bin/packer ];
+  then wget https://releases.hashicorp.com/packer/1.1.3/packer_1.1.3_linux_amd64.zip;
+  unzip packer_1.1.3_linux_amd64.zip -d $HOME/bin/; fi
+- if [ ! -e ${HOME}/bin/terraform ];
+  then wget https://releases.hashicorp.com/terraform/0.11.1/terraform_0.11.1_linux_amd64.zip;
+  unzip terraform_0.11.1_linux_amd64.zip -d $HOME/bin/; fi
+script:
+- cd packer
+- packer build -var "project_id=$PROJECT" -var "source_image=ubuntu-1604-lts" app.json
+- export APP_IMAGE=`jq -r '.builds[0].artifact_id' app-output.json`
+- echo $APP_IMAGE
+- packer build -var "project_id=$PROJECT" -var "source_image=ubuntu-1604-lts" db.json
+- export DB_IMAGE=`jq -r '.builds[0].artifact_id' db-output.json`
+- echo $DB_IMAGE
+- cd ..
+
+- cd terraform/stage
+- terraform init
+- terraform import -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub" module.vpc.google_compute_firewall.firewall_ssh default-allow-ssh
+- terraform apply -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub"
+- export DB_EXTERNAL_IP=`terraform output db_external_ip`
+- export DB_LOCAL_IP=`terraform output db_internal_ip`
+- export EXTERNAL_IP=`terraform output app_external_ip`
+- cd ../..
+
+- cd ansible
+- printf "[app]\nappserver ansible_ssh_host=$EXTERNAL_IP\n[db]\ndbserver ansible_ssh_host=$DB_EXTERNAL_IP\n" > hosts
+- sed -i '' 's#private_key_file = .*#private_key_file = ../travis/google_compute#' ansible.cfg
+- ansible all -m ping
+- sed -i '' "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml
+- ansible-playbook reddit_app.yml --limit db --tags db-tag
+- ansible-playbook reddit_app.yml --limit app --tags deploy-tag
+- ansible-playbook reddit_app.yml --limit app --tags app-tag
+- cd ..
+
+- sleep 5 && curl -s -o /dev/null -I -w "%{http_code}" --retry 10 --retry-delay 10
+  $EXTERNAL_IP:9292
+after_script:
+- cd terraform/stage
+- gcloud compute images delete --project $PROJECT -q $APP_IMAGE
+- gcloud compute images delete --project $PROJECT -q $DB_IMAGE
+- terraform plan -destroy  -var "project=$PROJECT" -var "public_key_path=../../travis/google_compute.pub"
+  -target module.app.google_compute_address.app_ip
+  -target module.app.google_compute_firewall.firewall_puma
+  -target module.app.google_compute_instance.app
+  -target module.db.google_compute_firewall.firewall_mongo
+  -target module.db.google_compute_instance.db
