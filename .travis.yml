@@ -52,7 +52,7 @@ script:
 - printf "[app]\nappserver ansible_ssh_host=$EXTERNAL_IP\n[db]\ndbserver ansible_ssh_host=$DB_EXTERNAL_IP\n" > hosts
 - sed -i '' 's#private_key_file = .*#private_key_file = ../travis/google_compute#' ansible.cfg
 - ansible all -m ping
-- sed -i '' "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml
+- 'sed -i "" "s#db_host: .*#db_host: $DB_LOCAL_IP#" reddit_app.yml'
 - ansible-playbook reddit_app.yml --limit db --tags db-tag
 - ansible-playbook reddit_app.yml --limit app --tags deploy-tag
 - ansible-playbook reddit_app.yml --limit app --tags app-tag
