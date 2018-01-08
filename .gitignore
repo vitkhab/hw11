@@ -4,3 +4,8 @@
 *.tfstate.backup
 *.tfvars
 .terraform/
+
+travis/credentials.json
+travis/google_compute
+travis/google_compute.pub
+travis/secrets.zip
